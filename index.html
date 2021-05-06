@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    
+
+    <script >
+        let canvas = document.createElement('canvas');
+        document.body.appendChild(canvas)
+        canvas.style.background = '#000'
+        let ctx =canvas.getContext('2d');
+        const universeWidth = 10000000;
+        canvas.width = 1000;
+        canvas.height = 1000;
+        let scale = 1000 / universeWidth;
+
+        let galaxies = [];
+        class Galaxy{
+            constructor(){
+                this.quality = Math.random() * 1000;
+                this.color = "#"+("00000"+((Math.random()*16777215+0.5)>>0).toString(16)).slice(-6);
+                this.x = Math.random() * universeWidth;
+                this.y = Math.random() * universeWidth;
+            }
+        }
+        for(let  i = 0; i <= 200; i++){
+            let galaxy = new Galaxy();
+            ctx.beginPath();
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = galaxy.color;
+            // 绘制圆的路径**
+            ctx.arc(galaxy.x * scale , galaxy.y * scale, galaxy.quality *scale, 0, Math.PI * 2, false);
+            ctx.stroke();
+            galaxies.push(galaxy)
+        }
+        
+
+    </script>
+</body>
+</html>
