@@ -9,11 +9,14 @@
     
 
     <script >
+
+        const universeWidth = 1000;
+        let G = 1;
         let canvas = document.createElement('canvas');
         document.body.appendChild(canvas)
         canvas.style.background = '#000'
         let ctx =canvas.getContext('2d');
-        const universeWidth = 10000000;
+        
         canvas.width = 1000;
         canvas.height = 1000;
         let scale = 1000 / universeWidth;
@@ -21,24 +24,65 @@
         let galaxies = [];
         class Galaxy{
             constructor(){
-                this.quality = Math.random() * 1000;
+                this.quality = Math.random() * 10;
                 this.color = "#"+("00000"+((Math.random()*16777215+0.5)>>0).toString(16)).slice(-6);
                 this.x = Math.random() * universeWidth;
                 this.y = Math.random() * universeWidth;
+                this.radius = Math.random() * 10;
+                this.forces = [];
             }
         }
-        for(let  i = 0; i <= 200; i++){
+        for(let  i = 0; i <= 100; i++){
             let galaxy = new Galaxy();
             ctx.beginPath();
             ctx.lineWidth = 2;
             ctx.strokeStyle = galaxy.color;
             // 绘制圆的路径**
-            ctx.arc(galaxy.x * scale , galaxy.y * scale, galaxy.quality *scale, 0, Math.PI * 2, false);
+            ctx.arc(galaxy.x * scale , galaxy.y * scale, galaxy.radius *scale, 0, Math.PI * 2, false);
             ctx.stroke();
             galaxies.push(galaxy)
         }
-        
+        function render(){
+            ctx.clearRect(0,0,1000,1000);
+            galaxies.forEach(galaxy => {
+                ctx.beginPath();
+                ctx.lineWidth = 2;
+                ctx.strokeStyle = galaxy.color;
 
+                galaxies.forEach(item=>{
+                    if(item !=galaxy ){
+                        let x = Math.abs(galaxy.x - item.x);
+                        let y = Math.abs(galaxy.y - item.y);
+                        let f = G * item.quality * galaxy.quality  / (x*x+ y*y);
+
+
+                        //TODO: 引力 与  x， y 上加速的的抵消与叠加
+                        // 通过两点计算 出一个带角度的力 
+
+                        // 计算 item.forces 的合力 
+                        // 通过合力和角度 反算出 x， y的增加量
+
+
+                    }
+                })
+                galaxy.x += galaxy.velocity.x;
+                galaxy.y += galaxy.velocity.y;
+                if(galaxy.x + galaxy.radius >= universeWidth || galaxy.x - galaxy.radius <= 0){
+                    galaxy.velocity.x = -galaxy.velocity.x ;
+                }
+                if(galaxy.y + galaxy.radius >= universeWidth || galaxy.y - galaxy.radius <= 0){
+                    galaxy.velocity.y = -galaxy.velocity.y ;
+                }
+                ctx.arc(galaxy.x * scale , galaxy.y * scale, galaxy.radius *scale, 0, Math.PI * 2, false);
+                ctx.stroke();
+            });
+        }
+
+        function frame(){
+            render();
+            requestAnimationFrame(frame)
+        }
+        frame();
     </script>
 </body>
 </html>
