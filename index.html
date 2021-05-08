@@ -10,8 +10,9 @@
 
     <script >
 
-        const universeWidth = 1000;
-        let G = 1;
+        const universeWidth = 10000;
+        let G = 0.0064;
+        let PI = Math.PI;
         let canvas = document.createElement('canvas');
         document.body.appendChild(canvas)
         canvas.style.background = '#000'
@@ -24,7 +25,8 @@
         let galaxies = [];
         class Galaxy{
             constructor(){
-                this.quality = Math.random() * 10;
+                // this.quality =  ;
+                this.quality = Math.random() * 10000 ;
                 this.color = "#"+("00000"+((Math.random()*16777215+0.5)>>0).toString(16)).slice(-6);
                 this.x = Math.random() * universeWidth;
                 this.y = Math.random() * universeWidth;
@@ -32,7 +34,7 @@
                 this.forces = [];
             }
         }
-        for(let  i = 0; i <= 100; i++){
+        for(let  i = 0; i <= 1000; i++){
             let galaxy = new Galaxy();
             ctx.beginPath();
             ctx.lineWidth = 2;
@@ -42,45 +44,71 @@
             ctx.stroke();
             galaxies.push(galaxy)
         }
+
+        function calcForce(){
+            galaxies.forEach(galaxy => {
+
+                galaxies.forEach(item=>{
+                    if(item != galaxy ){
+                        let x = Math.abs(galaxy.x - item.x);
+                        let y = Math.abs(galaxy.y - item.y);
+                        let force = {
+                            f: G * item.quality * galaxy.quality  / (x*x+ y*y),
+                            x: galaxy.x - item.x,
+                            y: galaxy.y - item.y
+                        }
+                        galaxy.forces.push(force);
+                    }
+                })
+            })
+        }
+
+        let i = 0;
         function render(){
             ctx.clearRect(0,0,1000,1000);
+            calcForce();
+
             galaxies.forEach(galaxy => {
                 ctx.beginPath();
                 ctx.lineWidth = 2;
                 ctx.strokeStyle = galaxy.color;
-
-                galaxies.forEach(item=>{
-                    if(item !=galaxy ){
-                        let x = Math.abs(galaxy.x - item.x);
-                        let y = Math.abs(galaxy.y - item.y);
-                        let f = G * item.quality * galaxy.quality  / (x*x+ y*y);
-
-
-                        //TODO: 引力 与  x， y 上加速的的抵消与叠加
-                        // 通过两点计算 出一个带角度的力 
-
-                        // 计算 item.forces 的合力 
-                        // 通过合力和角度 反算出 x， y的增加量
-
-
-                    }
+                let temp = {
+                    x: 0,
+                    y:0
+                }
+                galaxy.forces.forEach(force=>{
+                    let {x , y, f } = force;
+                    let t = Math.atan2(y,x);
+                    let deg = t *180 / PI;
+                    let xi = f * Math.cos(deg * PI / 180);
+                    let yi = f * Math.sin(deg * PI / 180);
+                    temp.x += xi;
+                    temp.y += yi;
                 })
-                galaxy.x += galaxy.velocity.x;
-                galaxy.y += galaxy.velocity.y;
-                if(galaxy.x + galaxy.radius >= universeWidth || galaxy.x - galaxy.radius <= 0){
-                    galaxy.velocity.x = -galaxy.velocity.x ;
+                galaxy.forces = [];
+
+                // console.log(temp)
+
+                if(Math.abs(temp.x) > 100){
+                    temp.x = 0
                 }
-                if(galaxy.y + galaxy.radius >= universeWidth || galaxy.y - galaxy.radius <= 0){
-                    galaxy.velocity.y = -galaxy.velocity.y ;
+                if(Math.abs(temp.y) > 100){
+                    temp.y = 0
                 }
-                ctx.arc(galaxy.x * scale , galaxy.y * scale, galaxy.radius *scale, 0, Math.PI * 2, false);
+                galaxy.x -= temp.x;
+                galaxy.y -= temp.y;
+                ctx.arc(  galaxy.x* scale , galaxy.y * scale, galaxy.radius *scale, 0, Math.PI * 2, false);
+
                 ctx.stroke();
             });
+            // 碰撞 合并
+            
         }
 
         function frame(){
             render();
-            requestAnimationFrame(frame)
+            
+             requestAnimationFrame(frame)
         }
         frame();
     </script>
