@@ -10,17 +10,21 @@
 
     <script >
 
-        const universeWidth = 10000;
+        const universeWidth =  window.innerWidth;
         let G = 0.0064;
         let PI = Math.PI;
+
+        const cw = window.innerWidth;
+        const ch =  window.innerHeight
+        
         let canvas = document.createElement('canvas');
         document.body.appendChild(canvas)
         canvas.style.background = '#000'
         let ctx =canvas.getContext('2d');
         
-        canvas.width = 1000;
-        canvas.height = 1000;
-        let scale = 1000 / universeWidth;
+        canvas.width = cw;
+        canvas.height = ch;
+        let scale =  1;
 
         let galaxies = [];
         class Galaxy{
@@ -34,7 +38,7 @@
                 this.forces = [];
             }
         }
-        for(let  i = 0; i <= 1000; i++){
+        for(let  i = 0; i <= 100; i++){
             let galaxy = new Galaxy();
             ctx.beginPath();
             ctx.lineWidth = 2;
@@ -65,7 +69,7 @@
 
         let i = 0;
         function render(){
-            ctx.clearRect(0,0,1000,1000);
+            ctx.clearRect(0,0,cw,ch);
             calcForce();
 
             galaxies.forEach(galaxy => {
@@ -89,15 +93,15 @@
 
                 // console.log(temp)
 
-                if(Math.abs(temp.x) > 100){
+                if(Math.abs(temp.x) > 30){
                     temp.x = 0
                 }
-                if(Math.abs(temp.y) > 100){
+                if(Math.abs(temp.y) > 30){
                     temp.y = 0
                 }
                 galaxy.x -= temp.x;
                 galaxy.y -= temp.y;
-                ctx.arc(  galaxy.x* scale , galaxy.y * scale, galaxy.radius *scale, 0, Math.PI * 2, false);
+                ctx.arc( galaxy.x* scale , galaxy.y * scale, galaxy.radius *scale, 0, Math.PI * 2, false);
 
                 ctx.stroke();
             });
